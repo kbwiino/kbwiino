@@ -3,7 +3,10 @@ use App\Support\Env;
 
 return [
     'enabled' => Env::bool('AI_ENABLED', true),
-    'provider' => Env::get('AI_PROVIDER', 'claude'),
+    // auto = Claude when an API key is set, otherwise the clearly-marked mock outside production
+    'provider' => Env::get('AI_PROVIDER', 'auto'),
+    'effort' => Env::get('AI_EFFORT', 'medium'),
+    'structured_output' => Env::bool('AI_STRUCTURED_OUTPUT', true),
     'api_key' => Env::get('ANTHROPIC_API_KEY', ''),
     'model' => Env::get('ANTHROPIC_MODEL', 'claude-sonnet-5-5'),
     'api_version' => Env::get('ANTHROPIC_API_VERSION', '2023-06-01'),

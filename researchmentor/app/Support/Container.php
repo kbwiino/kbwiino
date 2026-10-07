@@ -20,6 +20,11 @@ final class Container
         self::$instances[$id] = $obj;
     }
 
+    public static function has(string $id): bool
+    {
+        return isset(self::$instances[$id]) || isset(self::$factories[$id]);
+    }
+
     public static function get(string $id): mixed
     {
         if (isset(self::$instances[$id])) {

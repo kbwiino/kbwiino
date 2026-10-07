@@ -136,13 +136,13 @@ final class TextExtractor
         return ['segments' => $segments, 'pages' => null];
     }
 
-    private static function xlsx(string $path): array
+    /** @return array<string,array<int,array<int,string>>> sheet name => rows of cell strings */
+    public static function xlsxSheets(string $path, int $rowCap = 2000): array
     {
         $zip = self::openZip($path);
         $shared = [];
         if (($ss = $zip->getFromName('xl/sharedStrings.xml')) !== false) {
-            $dom = self::loadXml($ss);
-            foreach ($dom->getElementsByTagName('si') as $si) {
+            foreach (self::loadXml($ss)->getElementsByTagName('si') as $si) {
                 $shared[] = $si->textContent;
             }
         }
@@ -153,8 +153,7 @@ final class TextExtractor
                 $rels[$rel->getAttribute('Id')] = $rel->getAttribute('Target');
             }
         }
-        $segments = [];
-        $rowCap = 2000;
+        $sheets = [];
         $sheetNo = 0;
         foreach ($wb->getElementsByTagName('sheet') as $sheet) {
             $sheetNo++;
@@ -167,11 +166,8 @@ final class TextExtractor
                 continue;
             }
             $rows = [];
-            $sx = self::loadXml($xml);
-            $n = 0;
-            foreach ($sx->getElementsByTagName('row') as $row) {
-                if (++$n > $rowCap) {
-                    $rows[] = '[... truncated after ' . $rowCap . ' rows]';
+            foreach (self::loadXml($xml)->getElementsByTagName('row') as $row) {
+                if (count($rows) >= $rowCap) {
                     break;
                 }
                 $cells = [];
@@ -185,14 +181,23 @@ final class TextExtractor
                     }
                     $cells[] = $v;
                 }
-                $rows[] = implode("\t", $cells);
+                $rows[] = $cells;
             }
-            $text = implode("\n", $rows);
+            $sheets[$name] = $rows;
+        }
+        $zip->close();
+        return $sheets;
+    }
+
+    private static function xlsx(string $path): array
+    {
+        $segments = [];
+        foreach (self::xlsxSheets($path, 2000) as $name => $rows) {
+            $text = implode("\n", array_map(fn($r) => implode("\t", $r), $rows));
             foreach (str_split($text, 6000) as $chunk) {
                 $segments[] = new Segment(null, 'Sheet: ' . $name, $chunk);
             }
         }
-        $zip->close();
         if (!$segments) {
             throw new \RuntimeException('The workbook contains no data.');
         }
