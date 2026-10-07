@@ -1,0 +1,15 @@
+:root { --rm-primary: #1d3b6f; --rm-accent: #2a7de1; }
+.bg-rm { background-color: var(--rm-primary); }
+.text-rm { color: var(--rm-primary); }
+body { background: #f5f7fb; }
+.card { border: 0; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+.badge-ai { background: #6f42c1; color: #fff; }
+.badge-human { background: #198754; color: #fff; }
+.badge-student { background: #0d6efd; color: #fff; }
+.ai-box { border-left: 4px solid #6f42c1; background: #f7f3fd; padding: .75rem 1rem; border-radius: .25rem; }
+.official-box { border-left: 4px solid #198754; background: #f1f9f4; padding: .75rem 1rem; border-radius: .25rem; }
+.evidence { font-family: Georgia, serif; font-style: italic; border-left: 3px solid #adb5bd; padding-left: .75rem; color: #495057; }
+.diff-add { background: #d1f2d9; } .diff-del { background: #fbd5d5; text-decoration: line-through; }
+.table-responsive-sm { overflow-x: auto; }
+pre.doc-text { white-space: pre-wrap; max-height: 70vh; overflow: auto; background: #fff; padding: 1rem; border: 1px solid #dee2e6; }
+@media (max-width: 575px) { .btn-group-responsive { flex-direction: column; } }

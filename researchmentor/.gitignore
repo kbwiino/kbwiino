@@ -1,0 +1,11 @@
+/vendor/
+.env
+.env.*
+!.env.example
+/storage/private/*
+/storage/logs/*
+/storage/cache/*
+/storage/exports/*
+!/storage/*/.gitkeep
+.phpunit.result.cache
+.phpunit.cache/
