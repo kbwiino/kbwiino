@@ -34,6 +34,27 @@ abstract class TestCase extends BaseTestCase
         parent::tearDown();
     }
 
+    /**
+     * InnoDB full-text rows are only searchable after COMMIT, so a few tests must run outside the
+     * per-test rollback. This commits, wipes every table (keeping reference roles) and re-opens a transaction.
+     */
+    protected function resetCommittedDatabase(): void
+    {
+        $pdo = Database::connection();
+        if ($pdo->inTransaction()) {
+            $pdo->commit();
+        }
+        $pdo->exec('SET FOREIGN_KEY_CHECKS = 0');
+        foreach (Database::fetchAll('SHOW TABLES') as $row) {
+            $t = array_values($row)[0];
+            if (!in_array($t, ['schema_migrations', 'roles'], true)) {
+                $pdo->exec("TRUNCATE TABLE `{$t}`");
+            }
+        }
+        $pdo->exec('SET FOREIGN_KEY_CHECKS = 1');
+        $pdo->beginTransaction();
+    }
+
     protected function newBrowser(): void
     {
         $this->session = Session::array();

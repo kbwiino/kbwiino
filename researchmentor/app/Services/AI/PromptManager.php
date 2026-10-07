@@ -19,7 +19,12 @@ final class PromptManager
         $tpl = self::load($key);
         $map = [];
         foreach ($vars as $k => $v) {
-            $map['{{' . $k . '}}'] = self::neutralise((string) $v);
+            // "<name>_raw" variables are markup built by this application (already neutralised inside); all others are untrusted text.
+            if (str_ends_with($k, '_raw')) {
+                $map['{{' . substr($k, 0, -4) . '}}'] = (string) $v;
+            } else {
+                $map['{{' . $k . '}}'] = self::neutralise((string) $v);
+            }
         }
         $user = strtr($tpl['user'], $map);
         // Remove placeholders that were not supplied (e.g. optional blocks).

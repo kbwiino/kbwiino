@@ -106,7 +106,7 @@ final class StagedAnalyzer
             'constitution' => ResearchProjectAgent::constitutionBlock($ctx->project),
             'document_text' => $docText,
             'part_note' => $partNote,
-            'guidelines' => self::guidelines($ctx, $agent),
+            'guidelines_raw' => self::guidelines($ctx, $agent),
         ] + $agent->variables($ctx, $docText);
         $prompt = PromptManager::render('review.' . $agent->type(), $vars);
         return $ctx->ai->createReview($agent->type(), $prompt['system'], $prompt['user'], $ctx->callOptions('review:' . $agent->type()) + ['stage' => $stage]);
