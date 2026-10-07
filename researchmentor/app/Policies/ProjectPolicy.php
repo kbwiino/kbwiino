@@ -18,6 +18,12 @@ final class ProjectPolicy
         return ProjectAccess::hasContentAccess($u, $p);
     }
 
+    /** Full project details (problem, purpose, methodology). Coordinators/administrators get summaries only. */
+    public function viewDetails(array $u, array $p): bool
+    {
+        return ProjectAccess::has($u, $p, 'student', 'supervisor', 'examiner');
+    }
+
     /** Progress monitoring data (stage, milestones, counts) - includes oversight roles. */
     public function viewProgress(array $u, array $p): bool
     {
