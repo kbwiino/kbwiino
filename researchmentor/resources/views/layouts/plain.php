@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="csrf-token" content="<?= e($csrf ?? '') ?>">
   <title><?= e($title ?? 'ResearchMentor AI') ?> · ResearchMentor AI</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/images/favicon.svg">
   <link rel="stylesheet" href="/assets/vendor/bootstrap.min.css">
   <link rel="stylesheet" href="/assets/vendor/bootstrap-icons.min.css">
   <link rel="stylesheet" href="/assets/css/app.css">

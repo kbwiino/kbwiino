@@ -107,6 +107,16 @@ final class DocumentTest extends TestCase
         $this->assertError($this->upload($a, Fixtures::txt('big.txt', str_repeat('a', 500))), 413, 'file_too_large');
     }
 
+    public function testRequestBodyDroppedByPhpForSizeIsReportedAs413(): void
+    {
+        $a = $this->scenario();
+        $this->actingAs($a['student']);
+        $req = new \App\Support\Request('POST', '/api/documents/upload', [], [], ['X-CSRF-Token' => $this->session->csrfToken(), 'Accept' => 'application/json'], [], ['REMOTE_ADDR' => '127.0.0.1', 'CONTENT_LENGTH' => '45000000'], $this->session);
+        $r = $this->app->handle($req);
+        $this->assertSame(413, $r->status);
+        $this->assertSame('file_too_large', $r->decoded()['error']['code']);
+    }
+
     public function testMissingFileAndBadCategory(): void
     {
         $a = $this->scenario();

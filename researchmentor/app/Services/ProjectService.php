@@ -351,7 +351,7 @@ final class ProjectService
     {
         $rows = Database::fetchAll(
             "SELECT a.action, a.created_at, a.metadata, u.first_name, u.last_name FROM audit_logs a LEFT JOIN users u ON u.id = a.user_id
-             WHERE a.entity_uuid = ? OR JSON_UNQUOTE(JSON_EXTRACT(a.metadata, '$.project')) = ? ORDER BY a.id DESC LIMIT " . (int) $limit,
+             WHERE a.project_uuid = ? OR a.entity_uuid = ? ORDER BY a.id DESC LIMIT " . (int) $limit,
             [$project['uuid'], $project['uuid']]
         );
         return array_map(function ($a) {

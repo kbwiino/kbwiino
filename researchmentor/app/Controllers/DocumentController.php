@@ -56,6 +56,7 @@ final class DocumentController extends BaseController
     public function upload(Request $r): Response
     {
         $user = $this->user($r);
+        $this->assertUploadNotTruncated($r);
         $data = Validator::make($r->body, [
             'project_id' => 'nullable|uuid', 'document_id' => 'nullable|uuid',
             'category' => 'nullable|in:' . implode(',', DocumentService::CATEGORIES),
@@ -81,6 +82,15 @@ final class DocumentController extends BaseController
         }
         $res = DocumentService::upload($r, $user, $project, $data, $file, $existing);
         return $this->created(DocumentService::present($res['document'], true));
+    }
+
+    /** PHP discards the whole body when it exceeds post_max_size; report that as 413 instead of a confusing validation error. */
+    private function assertUploadNotTruncated(Request $r): void
+    {
+        $len = (int) ($r->server['CONTENT_LENGTH'] ?? 0);
+        if ($len > 0 && !$r->body && !$r->files) {
+            throw new HttpException(413, 'file_too_large', 'The upload exceeds the maximum request size of ' . round(\App\Support\Config::get('storage.max_upload_bytes') / 1048576) . ' MB.');
+        }
     }
 
     public function show(Request $r): Response

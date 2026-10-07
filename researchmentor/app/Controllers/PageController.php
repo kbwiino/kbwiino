@@ -27,7 +27,7 @@ final class PageController extends BaseController
         if (\App\Services\AuthService::currentUser($r)) {
             return Response::redirect('/dashboard');
         }
-        return $this->render($r, 'auth/login', ['title' => 'Sign in'], 'layouts/plain');
+        return $this->render($r, 'auth/login', ['title' => 'Sign in', 'script' => '/assets/js/login.js'], 'layouts/plain');
     }
 
     public function dashboard(Request $r): Response

@@ -38,7 +38,7 @@ final class Application
 
     private function dispatch(Request $request): Response
     {
-        $match = $this->router->match($request->method, $request->path);
+        $match = $this->router->match($request->method === 'HEAD' ? 'GET' : $request->method, $request->path);
         if ($match === null) {
             throw HttpException::notFound('Page');
         }
@@ -70,6 +70,7 @@ final class Application
             'auth' => new AuthMiddleware(),
             'csrf' => new CsrfMiddleware(),
             'role' => new RoleMiddleware(explode(',', (string) $arg)),
+            'throttle' => new \App\Middleware\ThrottleMiddleware((int) ($arg ?: 300)),
             default => throw new \InvalidArgumentException("Unknown middleware {$name}"),
         };
     }

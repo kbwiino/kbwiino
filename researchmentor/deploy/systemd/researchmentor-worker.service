@@ -1,0 +1,25 @@
+# /etc/systemd/system/researchmentor-worker.service
+# Processes background jobs (document text extraction, AI reviews, guideline indexing) when QUEUE_DRIVER=database.
+[Unit]
+Description=ResearchMentor AI background worker
+After=network.target mysql.service
+Wants=mysql.service
+
+[Service]
+Type=simple
+User=rmapp
+Group=rmapp
+WorkingDirectory=/var/www/researchmentor
+ExecStart=/usr/bin/php -d memory_limit=512M -d max_execution_time=0 /var/www/researchmentor/bin/worker.php
+Restart=always
+RestartSec=5
+# SIGTERM lets the worker finish the current job before exiting
+KillSignal=SIGTERM
+TimeoutStopSec=180
+NoNewPrivileges=true
+ProtectSystem=full
+PrivateTmp=true
+ReadWritePaths=/var/www/researchmentor/storage /var/lib/researchmentor
+
+[Install]
+WantedBy=multi-user.target

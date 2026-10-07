@@ -57,6 +57,9 @@ final class KnowledgeController extends BaseController
     {
         $user = $this->user($r);
         Gate::authorize($user, 'knowledge.manage', (int) $user['institution_id']);
+        if ((int) ($r->server['CONTENT_LENGTH'] ?? 0) > 0 && !$r->body && !$r->files) {
+            throw new HttpException(413, 'file_too_large', 'The upload exceeds the maximum request size.');
+        }
         $data = Validator::make($r->body, [
             'title' => 'nullable|string|max:300', 'category' => 'nullable|in:' . implode(',', KnowledgeService::CATEGORIES),
             'access_level' => 'nullable|in:all_users,staff_only,admins_only', 'version_label' => 'nullable|string|max:40', 'supersedes_id' => 'nullable|uuid',

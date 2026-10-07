@@ -1,0 +1,10 @@
+# Development image: PHP 8.3 + Apache + required extensions. NOT for production.
+FROM php:8.3-apache
+RUN apt-get update && apt-get install -y --no-install-recommends libzip-dev libicu-dev libxml2-dev unzip git \
+    && docker-php-ext-install pdo_mysql zip intl mbstring xml dom \
+    && a2enmod rewrite headers \
+    && rm -rf /var/lib/apt/lists/*
+RUN sed -ri 's!/var/www/html!/var/www/researchmentor/public!g' /etc/apache2/sites-available/*.conf /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf \
+    && printf '<Directory /var/www/researchmentor/public>\n    AllowOverride All\n    Require all granted\n</Directory>\n' > /etc/apache2/conf-available/rm.conf && a2enconf rm
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+WORKDIR /var/www/researchmentor

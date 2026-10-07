@@ -11,6 +11,7 @@ $has = fn(string ...$r) => (bool) array_intersect($r, $roles);
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="csrf-token" content="<?= e($csrf ?? '') ?>">
   <title><?= e($title ?? 'ResearchMentor AI') ?> · ResearchMentor AI</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/images/favicon.svg">
   <link rel="stylesheet" href="/assets/vendor/bootstrap.min.css">
   <link rel="stylesheet" href="/assets/vendor/bootstrap-icons.min.css">
   <link rel="stylesheet" href="/assets/css/app.css">
@@ -30,6 +31,9 @@ $has = fn(string ...$r) => (bool) array_intersect($r, $roles);
         <li class="nav-item"><a class="nav-link" href="/knowledge">Guidelines</a></li>
         <?php if ($has(Roles::GRAD_ADMIN, Roles::SYSADMIN)): ?>
         <li class="nav-item"><a class="nav-link" href="/admin/users">Users</a></li>
+        <?php endif; ?>
+        <?php if ($has(Roles::GRAD_ADMIN)): ?>
+        <li class="nav-item"><a class="nav-link" href="/admin/institution">Institution</a></li>
         <?php endif; ?>
         <?php if ($has(Roles::SYSADMIN)): ?>
         <li class="nav-item"><a class="nav-link" href="/admin/system">System</a></li>

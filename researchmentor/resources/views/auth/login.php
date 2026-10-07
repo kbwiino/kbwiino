@@ -8,7 +8,7 @@
     <div class="card shadow-sm">
       <div class="card-body p-4">
         <div id="alerts" aria-live="polite"></div>
-        <form id="login-form" novalidate>
+        <form id="login-form" method="post" action="/api/auth/login" novalidate>
           <div class="mb-3">
             <label for="email" class="form-label">Email</label>
             <input type="email" class="form-control" id="email" name="email" autocomplete="username" required autofocus>
@@ -24,4 +24,3 @@
     <p class="small text-muted mt-3 text-center">The AI assists supervision; it does not grade work or make official academic decisions. <a href="/privacy">Privacy notice</a></p>
   </div>
 </div>
-<script src="/assets/js/login.js"></script>

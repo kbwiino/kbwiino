@@ -1,0 +1,37 @@
+# Local development stack:  docker compose -f docker-compose.dev.yml up --build
+#   then:  docker compose -f docker-compose.dev.yml exec app bash -lc "composer install && php bin/migrate.php up && php bin/seed.php"
+#   open http://localhost:8080  (demo accounts are listed by bin/seed.php)
+services:
+  app:
+    build: { context: ., dockerfile: Dockerfile.dev }
+    ports: ["8080:80"]
+    volumes: [".:/var/www/researchmentor"]
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_URL: http://localhost:8080
+      DB_HOST: db
+      DB_DATABASE: researchmentor
+      DB_USERNAME: researchmentor
+      DB_PASSWORD: dev-password-change-me
+      AI_PROVIDER: mock                # clearly-marked mock AI; set to "auto" and add ANTHROPIC_API_KEY to try Claude
+      SESSION_SECURE_COOKIE: "false"
+      QUEUE_DRIVER: sync
+    depends_on:
+      db: { condition: service_healthy }
+  db:
+    image: mysql:8.0
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+    environment:
+      MYSQL_DATABASE: researchmentor
+      MYSQL_USER: researchmentor
+      MYSQL_PASSWORD: dev-password-change-me
+      MYSQL_ROOT_PASSWORD: dev-root-password-change-me
+    volumes: ["dbdata:/var/lib/mysql"]
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-pdev-root-password-change-me"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+volumes:
+  dbdata: {}

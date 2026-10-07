@@ -18,7 +18,7 @@ final class MockAIService implements AIServiceInterface
 
     public function checkAvailability(): array
     {
-        return ['available' => true, 'provider' => 'mock', 'model' => 'mock-1', 'mock' => true, 'reason' => 'Using the development mock AI. Configure ANTHROPIC_API_KEY for real analysis.'];
+        return ['available' => true, 'provider' => 'mock', 'model' => 'mock-1', 'mock' => true, 'reason' => 'Development mock AI is active. Real analysis needs an AI provider to be configured by the administrator.'];
     }
 
     public function countTokensIfSupported(string $system, string $user): ?int

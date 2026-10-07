@@ -67,8 +67,30 @@ final class TextExtractor
         return $zip;
     }
 
+    /** Read a ZIP entry with a hard cap on the *actual* decompressed size (headers can lie). */
+    private static function readEntry(ZipArchive $zip, string $name, int $max = 60_000_000): string|false
+    {
+        $stream = $zip->getStream($name);
+        if ($stream === false) {
+            return false;
+        }
+        $out = '';
+        while (!feof($stream)) {
+            $out .= fread($stream, 65536);
+            if (strlen($out) > $max) {
+                fclose($stream);
+                throw new \RuntimeException('A document part is too large to process.');
+            }
+        }
+        fclose($stream);
+        return $out;
+    }
+
     private static function loadXml(string $xml): \DOMDocument
     {
+        if (stripos(substr($xml, 0, 4096), '<!DOCTYPE') !== false) {
+            throw new \RuntimeException('Documents containing DTDs are not accepted.');
+        }
         $dom = new \DOMDocument();
         // LIBXML_NONET blocks network access; entities are not substituted (no LIBXML_NOENT) => no XXE.
         if (!$dom->loadXML($xml, LIBXML_NONET | LIBXML_COMPACT | LIBXML_PARSEHUGE)) {
@@ -80,7 +102,7 @@ final class TextExtractor
     private static function docx(string $path): array
     {
         $zip = self::openZip($path);
-        $xml = $zip->getFromName('word/document.xml');
+        $xml = self::readEntry($zip, 'word/document.xml');
         $zip->close();
         if ($xml === false) {
             throw new \RuntimeException('word/document.xml missing.');
@@ -141,14 +163,14 @@ final class TextExtractor
     {
         $zip = self::openZip($path);
         $shared = [];
-        if (($ss = $zip->getFromName('xl/sharedStrings.xml')) !== false) {
+        if (($ss = self::readEntry($zip, 'xl/sharedStrings.xml')) !== false) {
             foreach (self::loadXml($ss)->getElementsByTagName('si') as $si) {
                 $shared[] = $si->textContent;
             }
         }
-        $wb = self::loadXml((string) $zip->getFromName('xl/workbook.xml'));
+        $wb = self::loadXml((string) self::readEntry($zip, 'xl/workbook.xml'));
         $rels = [];
-        if (($r = $zip->getFromName('xl/_rels/workbook.xml.rels')) !== false) {
+        if (($r = self::readEntry($zip, 'xl/_rels/workbook.xml.rels')) !== false) {
             foreach (self::loadXml($r)->getElementsByTagName('Relationship') as $rel) {
                 $rels[$rel->getAttribute('Id')] = $rel->getAttribute('Target');
             }
@@ -161,7 +183,7 @@ final class TextExtractor
             $rid = $sheet->getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships', 'id');
             $target = $rels[$rid] ?? "worksheets/sheet{$sheetNo}.xml";
             $target = ltrim(str_starts_with($target, '/') ? substr($target, 1) : 'xl/' . $target, '/');
-            $xml = $zip->getFromName($target);
+            $xml = self::readEntry($zip, $target);
             if ($xml === false) {
                 continue;
             }

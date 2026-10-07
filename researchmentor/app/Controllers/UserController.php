@@ -62,6 +62,10 @@ final class UserController extends BaseController
     private function scoped(array $admin, string $uuid): array
     {
         $t = User::findByUuid($uuid);
+        // Only a system administrator may manage another system administrator (prevents takeover by lower-privileged admins).
+        if ($t && !in_array(Roles::SYSADMIN, $admin['roles'], true) && in_array(Roles::SYSADMIN, AuthService::loadUser((int) $t['id'])['roles'] ?? [], true)) {
+            throw HttpException::notFound('User');
+        }
         // Graduate School admins are confined to their own institution.
         if (!$t || $t['deleted_at'] !== null || (!in_array(Roles::SYSADMIN, $admin['roles'], true) && (int) $t['institution_id'] !== (int) $admin['institution_id'])) {
             throw HttpException::notFound('User');
@@ -149,6 +153,9 @@ final class UserController extends BaseController
             'roles' => 'required|array|min:1', 'password' => 'required|string|max:255',
         ], $r->body));
         $upd = array_intersect_key($data, array_flip(['first_name', 'last_name', 'status']));
+        if (isset($data['roles']) && (int) $target['id'] === (int) $a['id']) {
+            throw HttpException::forbidden('You cannot change your own roles. Ask another administrator.');
+        }
         if (isset($data['status']) && $data['status'] === 'disabled' && (int) $target['id'] === (int) $a['id']) {
             throw HttpException::unprocessable('You cannot disable your own account.');
         }

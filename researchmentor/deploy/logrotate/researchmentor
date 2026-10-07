@@ -1,0 +1,23 @@
+# /etc/logrotate.d/researchmentor
+/var/www/researchmentor/storage/logs/php-error.log
+/var/www/researchmentor/storage/logs/purge.log
+/var/www/researchmentor/storage/logs/worker-cron.log {
+    weekly
+    rotate 8
+    compress
+    delaycompress
+    missingok
+    notifempty
+    create 0640 rmapp rmapp
+    sharedscripts
+    postrotate
+        /bin/systemctl reload php8.3-fpm > /dev/null 2>&1 || true
+    endscript
+}
+/var/log/researchmentor-backup.log {
+    monthly
+    rotate 6
+    compress
+    missingok
+    notifempty
+}

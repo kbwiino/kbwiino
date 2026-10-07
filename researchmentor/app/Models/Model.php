@@ -50,7 +50,9 @@ abstract class Model
     public static function where(array $conditions, string $orderBy = 'id ASC', ?int $limit = null): array
     {
         [$sql, $params] = static::buildWhere($conditions);
-        $order = preg_match('/^[A-Za-z_., ]+$/', $orderBy) ? $orderBy : 'id ASC';
+        // $orderBy is always a developer-written constant, never request input. Defence in depth: reject anything that
+        // could start a new statement or comment.
+        $order = (preg_match('/^[A-Za-z0-9_.,() \'\-]+$/', $orderBy) && !str_contains($orderBy, '--')) ? $orderBy : 'id ASC';
         $q = 'SELECT * FROM `' . static::$table . '`' . $sql . ' ORDER BY ' . $order . ($limit ? ' LIMIT ' . (int) $limit : '');
         return Database::fetchAll($q, $params);
     }

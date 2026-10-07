@@ -12,5 +12,8 @@
     <li><strong>Retention.</strong> Records are kept for the period configured by your institution and then purged. You may ask your institution's data protection officer to access, correct or delete your personal data.</li>
     <li><strong>Legal basis.</strong> Processing is carried out in line with the Uganda Data Protection and Privacy Act, 2019 and applicable institutional policy. Contact your institution's data protection officer for requests or complaints.</li>
   </ul>
+  <?php if (!empty($user)): ?>
+    <p><a class="btn btn-outline-secondary btn-sm" href="/api/account/my-data"><i class="bi bi-download"></i> Download my data (JSON)</a></p>
+  <?php endif; ?>
   <p class="text-muted small">Institutions deploying this platform must review and complete this notice to reflect their own controller details.</p>
 </div>

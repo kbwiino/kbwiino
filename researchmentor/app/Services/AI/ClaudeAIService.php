@@ -38,7 +38,7 @@ final class ClaudeAIService implements AIServiceInterface
         if (!$this->config['enabled']) {
             $reason = 'AI features are disabled by the administrator.';
         } elseif (trim((string) $this->config['api_key']) === '') {
-            $reason = 'No Anthropic API key is configured.';
+            $reason = 'The AI provider has not been configured by the administrator.';
         }
         return ['available' => $reason === null, 'provider' => 'claude', 'model' => $this->model(), 'mock' => false, 'reason' => $reason];
     }

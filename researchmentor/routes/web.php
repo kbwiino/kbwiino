@@ -29,6 +29,7 @@ return function (Router $router): void {
         '/knowledge' => ['knowledge.index', 'Institutional knowledge base'],
         '/admin/users' => ['admin.users', 'User administration'],
         '/admin/system' => ['admin.system', 'System settings'],
+        '/admin/institution' => ['admin.institution', 'Institution settings'],
         '/notifications' => ['notifications.index', 'Notifications'],
     ];
     foreach ($pages as $path => [$page, $title]) {
