@@ -5,9 +5,38 @@
         "source": "github",
         "repo": "Imbad0202/academic-research-skills"
       }
+    },
+    "ai-research-skills": {
+      "source": {
+        "source": "github",
+        "repo": "Orchestra-Research/AI-Research-SKILLs"
+      }
     }
   },
   "enabledPlugins": {
-    "academic-research-skills@academic-research-skills": true
+    "academic-research-skills@academic-research-skills": true,
+    "model-architecture@ai-research-skills": true,
+    "tokenization@ai-research-skills": true,
+    "fine-tuning@ai-research-skills": true,
+    "mechanistic-interpretability@ai-research-skills": true,
+    "data-processing@ai-research-skills": true,
+    "post-training@ai-research-skills": true,
+    "safety-alignment@ai-research-skills": true,
+    "distributed-training@ai-research-skills": true,
+    "infrastructure@ai-research-skills": true,
+    "optimization@ai-research-skills": true,
+    "evaluation@ai-research-skills": true,
+    "inference-serving@ai-research-skills": true,
+    "mlops@ai-research-skills": true,
+    "agents@ai-research-skills": true,
+    "rag@ai-research-skills": true,
+    "prompt-engineering@ai-research-skills": true,
+    "observability@ai-research-skills": true,
+    "multimodal@ai-research-skills": true,
+    "emerging-techniques@ai-research-skills": true,
+    "autoresearch@ai-research-skills": true,
+    "ml-paper-writing@ai-research-skills": true,
+    "ideation@ai-research-skills": true,
+    "agent-native-research-artifact@ai-research-skills": true
   }
 }
