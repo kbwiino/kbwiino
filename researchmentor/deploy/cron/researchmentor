@@ -1,0 +1,15 @@
+# /etc/cron.d/researchmentor
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+# Fallback queue drain if you do NOT run the systemd worker (QUEUE_DRIVER=database). Skip if the service is enabled.
+# * * * * * rmapp /usr/bin/php /var/www/researchmentor/bin/worker.php --once >> /var/www/researchmentor/storage/logs/worker-cron.log 2>&1
+
+# Retention enforcement (purges files of deleted documents past their retention date) + rate-limit table housekeeping
+15 2 * * * rmapp /usr/bin/php /var/www/researchmentor/bin/worker.php --purge >> /var/www/researchmentor/storage/logs/purge.log 2>&1
+
+# Nightly backup (database + private files), 14-day rotation. Configure /etc/researchmentor-backup.env first.
+40 2 * * * root /var/www/researchmentor/deploy/scripts/backup.sh >> /var/log/researchmentor-backup.log 2>&1
+
+# Delete application log files older than 30 days
+5 3 * * * rmapp find /var/www/researchmentor/storage/logs -name 'app-*.log' -mtime +30 -delete

@@ -1,0 +1,29 @@
+# ResearchMentor AI - front controller rewrite rules
+Options -Indexes -MultiViews
+DirectoryIndex index.php
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # Never serve dotfiles
+    RewriteRule (^|/)\.(?!well-known/) - [F,L]
+    # Pass the Authorization header through (PHP-FPM)
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+    # Serve real static files directly, everything else goes to the front controller
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+<IfModule mod_headers.c>
+    <FilesMatch "\.(css|js|woff2|png|svg|ico)$">
+        Header set Cache-Control "public, max-age=604800"
+    </FilesMatch>
+</IfModule>
+
+# Only these file types may be executed or served from the public tree
+<FilesMatch "\.(php)$">
+    <If "%{REQUEST_URI} != '/index.php'">
+        Require all denied
+    </If>
+</FilesMatch>

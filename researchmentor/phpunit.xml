@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="tests/bootstrap.php" colors="true" cacheDirectory=".phpunit.cache"
+         failOnWarning="true" failOnRisky="true" beStrictAboutOutputDuringTests="true">
+  <testsuites>
+    <testsuite name="Unit"><directory>tests/Unit</directory></testsuite>
+    <testsuite name="Integration"><directory>tests/Integration</directory></testsuite>
+    <testsuite name="Feature"><directory>tests/Feature</directory></testsuite>
+  </testsuites>
+  <php>
+    <env name="APP_ENV" value="testing" force="true"/>
+    <env name="APP_DEBUG" value="false" force="true"/>
+    <env name="DB_DATABASE" value="researchmentor_test" force="true"/>
+    <env name="AI_PROVIDER" value="mock" force="true"/>
+    <env name="AI_ENABLED" value="true" force="true"/>
+    <env name="ANTHROPIC_API_KEY" value="" force="true"/>
+    <env name="QUEUE_DRIVER" value="sync" force="true"/>
+    <env name="SESSION_SECURE_COOKIE" value="false" force="true"/>
+    <env name="LOGIN_MAX_ATTEMPTS" value="5" force="true"/>
+  </php>
+</phpunit>
