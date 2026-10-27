@@ -1,18 +1,4 @@
 {
-  "extraKnownMarketplaces": {
-    "academic-research-skills": {
-      "source": {
-        "source": "github",
-        "repo": "Imbad0202/academic-research-skills"
-      }
-    },
-    "ai-research-skills": {
-      "source": {
-        "source": "github",
-        "repo": "Orchestra-Research/AI-Research-SKILLs"
-      }
-    }
-  },
   "enabledPlugins": {
     "academic-research-skills@academic-research-skills": true,
     "model-architecture@ai-research-skills": true,
@@ -38,5 +24,19 @@
     "ml-paper-writing@ai-research-skills": true,
     "ideation@ai-research-skills": true,
     "agent-native-research-artifact@ai-research-skills": true
+  },
+  "extraKnownMarketplaces": {
+    "academic-research-skills": {
+      "source": {
+        "source": "github",
+        "repo": "Imbad0202/academic-research-skills"
+      }
+    },
+    "ai-research-skills": {
+      "source": {
+        "source": "github",
+        "repo": "Orchestra-Research/AI-Research-SKILLs"
+      }
+    }
   }
 }
