@@ -4,6 +4,48 @@ Target: `https://mentor.versalynx.net` on Ubuntu 22.04/24.04. All configuration 
 These steps were exercised in a container with Apache 2.4.58 + PHP-FPM 8.3 + MySQL 8.0 (config syntax check, TLS/HTTP-2,
 headers, private-path blocking, login/CSRF, upload validation, queue worker). Certbot issuance itself needs your real DNS.
 
+## Quick install (one command)
+
+`deploy/scripts/provision.sh` performs sections 1-10 below on a fresh Ubuntu 22.04/24.04 server and ends with the
+section 7 web checks. It is safe to re-run: existing passwords, `.env` values, users and certificates are kept.
+
+1. Point the DNS A/AAAA record of `mentor.versalynx.net` at the server, and open ports 80 and 443.
+2. On the server, as root:
+
+```bash
+git clone https://github.com/kbwiino/kbwiino.git /var/www/researchmentor-repo     # private repo: use a deploy key or token
+sudo ADMIN_EMAIL=you@example.org INSTITUTION_NAME="Your University" INSTITUTION_CODE=YU \
+     /var/www/researchmentor-repo/researchmentor/deploy/scripts/provision.sh
+```
+
+The script asks for the Anthropic API key with hidden input, so the key does not end up in your shell history.
+
+What it does:
+
+- creates the MySQL database and three accounts with random passwords (runtime DML, migrator DDL, backup), stored in
+  `.env`, `/etc/researchmentor-migrate.env` and `/etc/researchmentor-backup.env`;
+- writes the production `.env`, runs Composer and the migrations;
+- creates the first institution and a System Administrator for `ADMIN_EMAIL`, with a random password saved in
+  `/root/researchmentor-first-login.txt`;
+- installs the PHP-FPM pool, the Apache vhost and a Let's Encrypt certificate (webroot `/var/www/letsencrypt`, renewed by
+  certbot's timer);
+- installs the worker service, cron jobs and logrotate;
+- runs `bin/console.php check` and the HTTPS, header and blocked-path checks.
+
+The application directory is the `researchmentor/` folder of the checkout. The script adapts every config file in `deploy/`
+to that path, the installed PHP version and `DOMAIN`. Options are listed in the script header: `DOMAIN`, `TLS=self-signed`
+for a test server without DNS, `SKIP_APT=1` and others. `ANTHROPIC_API_KEY` can be added to `.env` later; until then the
+`ai` health check fails and AI features are unavailable, because the mock provider is never used in production.
+
+To update after the first install:
+
+```bash
+cd /var/www/researchmentor-repo && sudo -u rmapp git pull --ff-only && sudo researchmentor/deploy/scripts/deploy.sh
+```
+
+The manual steps below are what the script automates. They write paths as `/var/www/researchmentor`; with the quick
+install the application lives in `/var/www/researchmentor-repo/researchmentor`.
+
 ## 1. Packages
 
 ```bash
@@ -103,8 +145,11 @@ CLI settings for the worker can differ (`/etc/php/8.3/cli/conf.d/`): `memory_lim
 
 ```bash
 sudo cp deploy/apache/mentor.versalynx.net.conf /etc/apache2/sites-available/
-# First get the certificate with a minimal HTTP vhost (point DNS A/AAAA records of mentor.versalynx.net at the server first):
-sudo certbot certonly --apache -d mentor.versalynx.net --agree-tos -m admin@versalynx.net
+# First get the certificate (point DNS A/AAAA records of mentor.versalynx.net at the server first). Serve the challenge
+# directory with a temporary port-80 vhost whose DocumentRoot is /var/www/letsencrypt, then:
+sudo install -d /var/www/letsencrypt
+sudo certbot certonly --webroot -w /var/www/letsencrypt -d mentor.versalynx.net --agree-tos -m admin@versalynx.net
+# The final vhost keeps /.well-known/acme-challenge/ mapped to /var/www/letsencrypt, so renewals work unchanged.
 sudo a2ensite mentor.versalynx.net && sudo a2dissite 000-default
 sudo apache2ctl configtest && sudo systemctl reload apache2
 sudo certbot renew --dry-run                       # renewal is handled by the certbot systemd timer
@@ -151,7 +196,7 @@ Copy backups **off the server** (rclone/rsync). Encrypt anything leaving the hos
 ## 11. Updating
 
 ```bash
-cd /var/www/researchmentor && sudo -u rmapp git pull --ff-only && sudo ./deploy/scripts/deploy.sh
+cd /var/www/researchmentor-repo && sudo -u rmapp git pull --ff-only && sudo researchmentor/deploy/scripts/deploy.sh
 ```
 
 `deploy.sh` installs without dev dependencies, runs migrations, fixes permissions, reloads PHP-FPM, restarts the worker and runs `bin/console.php check`.

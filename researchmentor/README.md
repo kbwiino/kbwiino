@@ -67,7 +67,7 @@ tests/           Unit, Integration, Feature           docs/    architecture, sec
 
 ## Documentation
 
-* `docs/DEPLOYMENT.md` - Ubuntu + Apache + PHP-FPM + MySQL + Certbot, worker, cron, backups, logs
+* `docs/DEPLOYMENT.md` - Ubuntu + Apache + PHP-FPM + MySQL + Certbot, worker, cron, backups, logs; one-command install with `deploy/scripts/provision.sh`
 * `docs/ARCHITECTURE.md` - request flow, modules, data model, design decisions
 * `docs/SECURITY.md` - controls, role/authorization matrix, data protection (Uganda), AI data handling
 * `docs/AI.md` - Claude integration, prompts, schema validation, staged analysis, agents, limitations
