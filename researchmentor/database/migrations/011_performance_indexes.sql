@@ -1,6 +1,6 @@
 -- Project history looks audit entries up by project (stored in metadata.project) or by entity uuid.
 ALTER TABLE audit_logs
-  ADD COLUMN project_uuid CHAR(36) GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(metadata, '$.project'))) STORED NULL AFTER entity_uuid,
+  ADD COLUMN project_uuid CHAR(36) GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(metadata, '$.project'))) STORED AFTER entity_uuid,
   ADD KEY ix_audit_project (project_uuid, id),
   ADD KEY ix_audit_entity_uuid (entity_uuid, id);
 

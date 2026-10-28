@@ -32,6 +32,16 @@ final class Database
         self::$pdo = null;
     }
 
+    /** Whether the server supports SELECT ... FOR UPDATE SKIP LOCKED (MySQL 8.0.1+, MariaDB 10.6+). */
+    public static function supportsSkipLocked(): bool
+    {
+        $version = (string) self::connection()->getAttribute(PDO::ATTR_SERVER_VERSION);
+        if (preg_match('/(\d+\.\d+\.\d+)-MariaDB/i', $version, $m)) {
+            return version_compare($m[1], '10.6.0', '>=');
+        }
+        return preg_match('/^(\d+\.\d+\.\d+)/', $version, $m) === 1 && version_compare($m[1], '8.0.1', '>=');
+    }
+
     public static function query(string $sql, array $params = []): PDOStatement
     {
         $stmt = self::connection()->prepare($sql);

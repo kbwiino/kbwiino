@@ -46,12 +46,15 @@ final class QueueDispatcher
     public static function work(): bool
     {
         $job = Database::transaction(function () {
-            $row = Database::fetchOne("SELECT * FROM background_jobs WHERE status = 'pending' AND available_at <= UTC_TIMESTAMP() ORDER BY id LIMIT 1 FOR UPDATE SKIP LOCKED");
+            // SKIP LOCKED needs MySQL 8 / MariaDB 10.6; older servers wait for the lock instead
+            $lock = Database::supportsSkipLocked() ? 'FOR UPDATE SKIP LOCKED' : 'FOR UPDATE';
+            $row = Database::fetchOne("SELECT * FROM background_jobs WHERE status = 'pending' AND available_at <= UTC_TIMESTAMP() ORDER BY id LIMIT 1 {$lock}");
             if (!$row) {
                 return null;
             }
-            Database::execute("UPDATE background_jobs SET status = 'running', reserved_at = UTC_TIMESTAMP(), attempts = attempts + 1 WHERE id = ?", [$row['id']]);
-            return $row;
+            // the status condition keeps a job from being claimed twice if another worker got there first
+            $claimed = Database::execute("UPDATE background_jobs SET status = 'running', reserved_at = UTC_TIMESTAMP(), attempts = attempts + 1 WHERE id = ? AND status = 'pending'", [$row['id']]);
+            return $claimed === 1 ? $row : null;
         });
         if (!$job) {
             return false;
