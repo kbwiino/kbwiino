@@ -6,8 +6,22 @@ headers, private-path blocking, login/CSRF, upload validation, queue worker). Ce
 
 ## Quick install (one command)
 
-`deploy/scripts/provision.sh` performs sections 1-10 below on a fresh Ubuntu 22.04/24.04 server and ends with the
-section 7 web checks. It is safe to re-run: existing passwords, `.env` values, users and certificates are kept.
+`deploy/scripts/provision.sh` performs sections 1-10 below on Ubuntu 20.04/22.04/24.04 and ends with the section 7 web
+checks. It is safe to re-run: existing passwords, `.env` values, users and certificates are kept.
+
+It also works on a server that already runs other sites, for example Jitsi Meet:
+
+- **Pre-flight checks.** Before changing anything, it checks which web server listens on ports 80/443 and that `mysql` can
+  log in as root. Root login works by socket authentication or through `/root/.my.cnf`. If a check fails, it stops and
+  explains why.
+- **What it reuses.** It reuses an existing MySQL or MariaDB server and the newest installed PHP-FPM of version 8.2 or later.
+  It installs Composer 2 when only Composer 1 is present.
+- **nginx.** If nginx owns ports 80/443, the site is configured from `deploy/nginx/` instead of `deploy/apache/`. Some
+  setups, including Jitsi with TURN on port 443, multiplex port 443 by SNI. In that case the domain is added to the
+  `map $ssl_preread_server_name` block, with a backup in `/var/backups/researchmentor-nginx/`. The site then listens
+  where the other sites do.
+- **What it leaves alone.** It never disables other sites, PHP-FPM pools or global PHP settings. The PHP settings from
+  `deploy/php/99-researchmentor.ini` are applied to the ResearchMentor pool only.
 
 1. Point the DNS A/AAAA record of `mentor.versalynx.net` at the server, and open ports 80 and 443.
 2. On the server, as root:
